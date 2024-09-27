@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken';
 import { UnauthenticatedError } from '../errors/index.js';
 
-const authenticationMiddleware = async (req, res, next) => {
+const authenticationMiddleware = async (req, _res, next) => {
   let token = null;
 
   if (req.signedCookies.token) {
@@ -9,7 +9,7 @@ const authenticationMiddleware = async (req, res, next) => {
   }
 
   if (!token) {
-    throw new UnauthenticatedError('Pas de token fournit.');
+    throw new UnauthenticatedError('Pas de token fourni.');
   }
 
   try {
