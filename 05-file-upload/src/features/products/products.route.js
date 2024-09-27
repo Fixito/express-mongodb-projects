@@ -1,18 +1,18 @@
 import express from 'express';
-import multer from 'multer';
 import * as productsController from './products.controller.js';
-import * as uploadsController from './prodycts-uploads.controller.js';
-const upload = multer({ dest: 'uploads/' });
+import upload from '../../middlewares/multer.middleware.js';
+import validate from '../../middlewares/validation.middleware.js';
+import { productSchema } from './products.schema.js';
 
 const router = express.Router();
 
 router
   .route('/')
-  .post(productsController.create)
+  .post(
+    upload.single('image'),
+    validate({ body: productSchema }),
+    productsController.create
+  )
   .get(productsController.getAll);
-
-router
-  .route('/uploads')
-  .post(upload.single('image'), uploadsController.upload);
 
 export default router;

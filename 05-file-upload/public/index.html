@@ -14,13 +14,14 @@
     <link rel="stylesheet" href="./style.css" />
   </head>
   <body>
-    <form class="form file-form">
+    <form class="form file-form" enctype="multipart/form-data">
       <h4>Téléchargement de fichiers</h4>
       <!-- single row -->
       <div class="form-row">
         <label for="name" class="form-label">Nom</label>
         <input
           type="text"
+          name="name"
           id="name"
           class="form-input"
           value="ordinateur"
@@ -33,6 +34,7 @@
         <label for="price" class="form-label">Prix</label>
         <input
           type="number"
+          name="price"
           id="price"
           class="form-input"
           value="149.99"

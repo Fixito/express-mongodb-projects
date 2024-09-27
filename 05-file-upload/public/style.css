@@ -244,14 +244,11 @@ ul {
 .loading {
   inline-size: 6rem;
   block-size: 6rem;
+  margin-inline: auto;
   border: 5px solid var(--grey-400);
   border-radius: 50%;
   border-top-color: var(--primary-500);
   animation: spinner 0.6s linear infinite;
-}
-
-.loading {
-  margin-inline: auto;
 }
 
 /* title */
