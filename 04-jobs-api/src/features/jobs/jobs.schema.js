@@ -1,7 +1,14 @@
 import { z } from 'zod';
+import mongoose from 'mongoose';
 import { JOB_STATUS } from '../../utils/constants.js';
 
-const jobsInputSchema = z.object({
+const jobParamsSchema = z.object({
+  id: z.string().refine((id) => mongoose.isValidObjectId(id), {
+    message: 'Invalid ObjectId',
+  }),
+});
+
+const jobBodySchema = z.object({
   company: z.string().min(1),
   position: z.string().min(1),
   status: z.enum([
@@ -11,4 +18,4 @@ const jobsInputSchema = z.object({
   ]),
 });
 
-export { jobsInputSchema };
+export { jobParamsSchema, jobBodySchema };

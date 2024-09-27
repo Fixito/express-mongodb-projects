@@ -1,44 +1,30 @@
 import { StatusCodes } from 'http-status-codes';
-import Users from './auth.model.js';
+import * as usersService from '../users/users.service.js';
 import { UnauthenticatedError } from '../../errors/index.js';
 
 const register = async (req, res) => {
-  const user = await Users.create(req.body);
-  const token = user.createJWT();
-  res
-    .status(StatusCodes.CREATED)
-    .json({ user: { name: user.name }, token });
+  const user = await usersService.create(req.body);
+  const token = user.createAccessToken();
+  res.status(StatusCodes.CREATED).json({ user, token });
 };
 
 const login = async (req, res) => {
-  const { email, password } = req.body;
+  const user = await usersService.get({ email: req.body.email });
 
-  if (!email || !password) {
-    throw new BadRequestError(
-      'Veuillez saisir un email et un mot de passe'
-    );
-  }
+  if (!user) throw new UnauthenticatedError('Identifiants invalides');
 
-  const user = await Users.findOne({ email });
+  const isPasswordCorrect = await user.comparePasswords(
+    req.body.password
+  );
 
-  if (!user) {
-    throw new UnauthenticatedError(
-      "informations d'identification non valides"
-    );
-  }
+  if (!isPasswordCorrect)
+    throw new UnauthenticatedError('Identifiants invalides');
 
-  const isPasswordCorrect = await user.comparePassword(password);
+  const token = user.createAccessToken();
 
-  if (!isPasswordCorrect) {
-    throw new UnauthenticatedError(
-      "informations d'identification non valides"
-    );
-  }
-
-  const token = user.createJWT();
   res
     .status(StatusCodes.OK)
-    .json({ user: { name: user.name }, token });
+    .json({ user: { userId: user._id }, token });
 };
 
-export { register, login };
+export { login, register };

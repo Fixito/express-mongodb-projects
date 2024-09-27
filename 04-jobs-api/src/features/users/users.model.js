@@ -1,8 +1,8 @@
-import mongoose from 'mongoose';
+import { model, Schema } from 'mongoose';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 
-const UsersSchema = new mongoose.Schema({
+const UserSchema = new Schema({
   name: {
     type: String,
     required: [true, 'Veuillez fournir un nom'],
@@ -11,12 +11,12 @@ const UsersSchema = new mongoose.Schema({
   },
   email: {
     type: String,
-    required: [true, 'Veuilez fournir un email'],
+    required: [true, 'Veuillez founir un email'],
+    unique: true,
     match: [
       /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
       'Veuillez fournir un email valide',
     ],
-    unique: true,
   },
   password: {
     type: String,
@@ -25,29 +25,31 @@ const UsersSchema = new mongoose.Schema({
   },
 });
 
-UsersSchema.pre('save', async function () {
-  const salt = await bcrypt.genSalt(10);
+UserSchema.pre('save', async function () {
+  const salt = await bcrypt.genSalt();
   this.password = await bcrypt.hash(this.password, salt);
 });
 
-UsersSchema.methods.createJWT = function () {
-  return jwt.sign(
-    { userId: this._id, name: this.name },
-    process.env.JWT_SECRET,
-    {
-      expiresIn: process.env.JWT_LIFETIME,
-    }
-  );
+UserSchema.methods.toJSON = function () {
+  const userObject = this.toObject();
+  delete userObject.password;
+  return userObject;
 };
 
-UsersSchema.methods.comparePassword = async function (
-  canditatePassword
+UserSchema.methods.createAccessToken = function () {
+  return jwt.sign({ userId: this._id }, process.env.JWT_SECRET, {
+    expiresIn: process.env.JWT_LIFETIME,
+  });
+};
+
+UserSchema.methods.comparePasswords = async function (
+  candidatePassword
 ) {
   const isMatch = await bcrypt.compare(
-    canditatePassword,
+    candidatePassword,
     this.password
   );
   return isMatch;
 };
 
-export default mongoose.model('Users', UsersSchema);
+export default model('User', UserSchema);

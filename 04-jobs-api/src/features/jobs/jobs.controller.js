@@ -18,9 +18,7 @@ const get = async (req, res) => {
 
   const job = await jobsService.get({ jobId, userId });
 
-  if (!job) {
-    throw new NotFoundError(`No job with id ${jobId}`);
-  }
+  if (!job) throw new NotFoundError(`Pas d'offre avec l'id ${jobId}`);
 
   res.status(StatusCodes.OK).json({ job });
 };
@@ -38,21 +36,14 @@ const update = async (req, res) => {
     params: { id: jobId },
   } = req;
 
-  if (company === '' || position === '') {
-    throw new BadRequestError(
-      'La société et le poste sont obligatoires'
-    );
-  }
-
   const updatedJob = await jobsService.update({
     jobId,
     userId,
     data: req.body,
   });
 
-  if (!updatedJob) {
-    throw new NotFoundError(`No job with id ${jobId}`);
-  }
+  if (!updatedJob)
+    throw new NotFoundError(`Pas d'offre avec l'id ${jobId}`);
 
   res.status(StatusCodes.OK).json({ job: updatedJob });
 };
@@ -65,9 +56,8 @@ const remove = async (req, res) => {
 
   const removedJob = await jobsService.remove({ jobId, userId });
 
-  if (!removedJob) {
-    throw new NotFoundError(`No job with id ${jobId}`);
-  }
+  if (!removedJob)
+    throw new NotFoundError(`Pas d'offre avec l'id ${jobId}`);
 
   res.status(StatusCodes.OK).json({ message: 'Job supprimé' });
 };

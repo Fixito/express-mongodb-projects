@@ -39,7 +39,7 @@ connectDB();
 import authRouter from './features/auth/auth.route.js';
 import jobsRouter from './features/jobs/jobs.route.js';
 
-app.get('/', (req, res) => {
+app.get('/', (_req, res) => {
   res.send("<h1>API Jobs</h1><a href='/api-docs'>Documentation</a>");
 });
 
