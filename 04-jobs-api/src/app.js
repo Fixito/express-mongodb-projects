@@ -1,32 +1,39 @@
+import 'dotenv/config';
 import 'express-async-errors';
 import express from 'express';
-import cookieParser from 'cookie-parser';
-import cors from 'cors';
 import helmet from 'helmet';
+import { rateLimit } from 'express-rate-limit';
 import mongoSanitize from 'express-mongo-sanitize';
-import rateLimiter from 'express-rate-limit';
+import cors from 'cors';
 import swaggerUI from 'swagger-ui-express';
 import YAML from 'yamljs';
 import connectDB from './config/db.config.js';
-import authenticateUser from './middlewares/authentication.middleware.js';
-import errorHandler from './middlewares/error-handler.middleware.js';
+import authenticateUser from './middlewares/auth.middleware.js';
+import errorHandler from './middlewares/error-handler.js';
 import notFound from './middlewares/not-found.middleware.js';
+import { auth } from './features/auth/index.js';
+import { jobs } from './features/jobs/index.js';
+import { StatusCodes } from 'http-status-codes';
 
 const swaggerDocument = YAML.load('./swagger.yaml');
 const app = express();
 
+app.use(helmet());
 app.set('trust proxy', 1);
 app.use(
-  rateLimiter({
+  rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
     limit: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes).
+    standardHeaders: 'draft-7', // draft-6: `RateLimit-*` headers; draft-7: combined `RateLimit` header
+    legacyHeaders: false, // Disable the `X-RateLimit-*` headers.
+    // store: ... , // Redis, Memcached, etc. See below.
   })
 );
-app.use(cors());
-app.use(helmet());
 app.use(mongoSanitize());
+app.use(cors());
 app.use(express.json());
-app.use(cookieParser(process.env.COOKIE_SECRET));
+
+connectDB();
 
 app.use(
   '/api-docs',
@@ -34,17 +41,14 @@ app.use(
   swaggerUI.setup(swaggerDocument)
 );
 
-connectDB();
-
-import authRouter from './features/auth/auth.route.js';
-import jobsRouter from './features/jobs/jobs.route.js';
-
 app.get('/', (_req, res) => {
-  res.send("<h1>API Jobs</h1><a href='/api-docs'>Documentation</a>");
+  res
+    .status(StatusCodes.OK)
+    .send("<h1>API JOBS</h1><a href='/api-docs'>Documentation</a>");
 });
 
-app.use('/api/v1/auth', authRouter);
-app.use('/api/v1/jobs', authenticateUser, jobsRouter);
+app.use('/api/v1/auth', auth);
+app.use('/api/v1/jobs', authenticateUser, jobs);
 
 app.use(notFound);
 app.use(errorHandler);

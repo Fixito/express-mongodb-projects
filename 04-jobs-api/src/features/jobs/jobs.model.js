@@ -1,7 +1,7 @@
-import mongoose from 'mongoose';
+import mongoose, { model, Schema } from 'mongoose';
 import { JOB_STATUS } from '../../utils/constants.js';
 
-const JobsSchema = new mongoose.Schema(
+const JobSchema = new Schema(
   {
     company: {
       type: String,
@@ -10,7 +10,7 @@ const JobsSchema = new mongoose.Schema(
     },
     position: {
       type: String,
-      required: [true, 'Veuillez fournir une position'],
+      required: [true, 'Veuillez fournir un poste'],
       maxlength: 100,
     },
     status: {
@@ -31,4 +31,4 @@ const JobsSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-export default mongoose.model('Job', JobsSchema);
+export default model('Job', JobSchema);

@@ -1,33 +1,25 @@
-import Jobs from './jobs.model.js';
+import jobs from './jobs.model.js';
 
-const getAll = (userId) => {
-  return Jobs.find({ createdBy: userId }).sort('createdAt');
+const create = (data, id) => {
+  return jobs({ ...data, createdBy: id }).save();
 };
 
-const get = ({ jobId, userId }) => {
-  return Jobs.findOne({
-    _id: jobId,
-    createdBy: userId,
+const getUsersjobs = (id) => {
+  return jobs.find({ createdBy: id });
+};
+
+const get = (id) => {
+  return jobs.findById(id);
+};
+
+const remove = (id) => {
+  return jobs.findByIdAndDelete(id);
+};
+
+const update = (id, data) => {
+  return jobs.findByIdAndUpdate(id, data, {
+    new: true,
   });
 };
 
-const create = (data) => {
-  return Jobs(data).save();
-};
-
-const update = ({ data, jobId, userId }) => {
-  return Jobs.findByIdAndUpdate(
-    { _id: jobId, createdBy: userId },
-    data,
-    { new: true, runValidators: true }
-  );
-};
-
-const remove = ({ jobId, userId }) => {
-  return Jobs.findByIdAndDelete({
-    _id: jobId,
-    createdBy: userId,
-  });
-};
-
-export { create, getAll, get, update, remove };
+export { create, getUsersjobs, get, remove, update };

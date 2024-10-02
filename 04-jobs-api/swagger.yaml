@@ -3,7 +3,7 @@ info:
   title: 06-Jobs-API
   version: 1.0.0
 servers:
-  - url: http://localhost:5000/api/v1
+  - url: https://jobs-api-temp-4qre.onrender.com/api/v1
 components:
   securitySchemes:
     bearerAuth:
@@ -24,8 +24,8 @@ paths:
             schema:
               type: object
               example:
-                name: john
-                email: john@gmail.com
+                name: peter
+                email: peter@gmail.com
                 password: secret
       responses:
         '200':
@@ -62,7 +62,7 @@ paths:
               type: object
               example:
                 company: SOFIP
-                position: front-end développeur
+                position: back-end développeur
                 status: en attente
       security:
         - bearerAuth: []
@@ -89,7 +89,7 @@ paths:
         schema:
           type: string
         required: true
-        description: The job ID
+        description: The Job ID
     get:
       tags:
         - Jobs

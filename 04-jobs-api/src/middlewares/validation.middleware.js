@@ -1,27 +1,35 @@
 import { z } from 'zod';
-import { REQUEST_URI_TOO_LONG, StatusCodes } from 'http-status-codes';
+import { StatusCodes } from 'http-status-codes';
 
+// Middleware de validation
+// bodySchema: schéma de validation pour le corps de la requête
+// paramsSchema: schéma de validation pour les paramètres de la requête
 const validate =
-  ({ params, body }) =>
+  ({ bodySchema, paramsSchema }) =>
   (req, res, next) => {
     try {
-      if (params) {
-        params.parse(req.params);
+      // Si un schéma de corps est fourni, valider le corps de la requête
+      if (bodySchema) {
+        const parsedBody = bodySchema.parse(req.body);
+        req.body = parsedBody; // Remplacer le corps de la requête par le corps validé
       }
 
-      if (body) {
-        body.parse(req.body);
+      // Si un schéma de paramètres est fourni, valider les paramètres de la requête
+      if (paramsSchema) {
+        const parsedParams = paramsSchema.parse(req.params);
+        req.params = parsedParams; // Remplacer les paramètres de la requête par les paramètres validés
       }
 
-      next();
+      next(); // Passer au middleware suivant
     } catch (error) {
+      // Si une erreur de validation Zod est levée
       if (error instanceof z.ZodError) {
         return res
-          .status(StatusCodes.BAD_REQUEST)
-          .json({ errors: error.errors });
+          .status(StatusCodes.BAD_REQUEST) // Renvoyer un statut 400 (Bad Request)
+          .json({ errors: error.errors }); // Renvoyer les erreurs de validation
       }
 
-      next(error);
+      next(error); // Passer l'erreur au middleware de gestion des erreurs
     }
   };
 

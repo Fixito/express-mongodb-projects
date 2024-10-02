@@ -1,24 +1,33 @@
 import express from 'express';
-import * as jobsController from './jobs.controller.js';
-import validate from '../../middlewares/validation.middleware.js';
-import { jobParamsSchema, jobBodySchema } from './jobs.schema.js';
-
 const router = express.Router();
+import validate from '../../middlewares/validation.middleware.js';
+import { JobBodySchema, JobParamsSchema } from './jobs.schema.js';
+
+import * as jobsController from './jobs.controller.js';
 
 router
   .route('/')
-  .get(jobsController.getAll)
-  .post(validate({ body: jobBodySchema }), jobsController.create);
+  .get(jobsController.getUsersJobs)
+  .post(
+    validate({ bodySchema: JobBodySchema }),
+    jobsController.create
+  );
 
 router
   .route('/:id')
-  .get(validate({ params: jobParamsSchema }), jobsController.get)
+  .get(
+    validate({ paramsSchema: JobParamsSchema }),
+    jobsController.get
+  )
   .put(
-    validate({ body: jobBodySchema, params: jobParamsSchema }),
+    validate({
+      paramsSchema: JobParamsSchema,
+      bodySchema: JobBodySchema,
+    }),
     jobsController.update
   )
   .delete(
-    validate({ params: jobParamsSchema }),
+    validate({ paramsSchema: JobParamsSchema }),
     jobsController.remove
   );
 
