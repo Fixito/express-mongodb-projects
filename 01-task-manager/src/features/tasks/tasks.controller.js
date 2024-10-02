@@ -11,13 +11,16 @@ export const getAll = async (_req, res) => {
 
 export const get = async (req, res) => {
   const task = await tasksService.get(req.params.id);
-  if (!task) throw new NotFoundError('Task not found');
+  if (!task)
+    throw new NotFoundError(
+      `Aucune tâche trouvée avec l'id ${req.params.id}`
+    );
   return res.json({ task });
 };
 
 export const create = async (req, res) => {
   if (!req.body.name)
-    throw new BadRequestError('Task name is required');
+    throw new BadRequestError('Le nom de la tâche est requis');
   const task = await tasksService.create(req.body);
   return res.json({ task });
 };
@@ -27,14 +30,21 @@ export const update = async (req, res) => {
     params: { id },
     body: { name },
   } = req;
-  if (!name) throw new BadRequestError('Task name is required');
+  if (!name)
+    throw new BadRequestError('Le nom de la tâche est requis');
   const task = await tasksService.update(id, req.body);
-  if (!task) throw new NotFoundError('Task not found');
+  if (!task)
+    throw new NotFoundError(
+      `Aucune tâche trouvée avec l'id ${req.params.id}`
+    );
   return res.json({ task });
 };
 
 export const remove = async (req, res) => {
-  const removedTask = await tasksService.remove(req.params.id);
-  if (!removedTask) throw new NotFoundError('Task not found');
-  return res.json({ message: 'Task deleted' });
+  const task = await tasksService.remove(req.params.id);
+  if (!task)
+    throw new NotFoundError(
+      `Aucune tâche trouvée avec l'id ${req.params.id}`
+    );
+  return res.json({ message: 'Tâche supprimée' });
 };

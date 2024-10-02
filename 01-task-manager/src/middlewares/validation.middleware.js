@@ -2,22 +2,17 @@ import { StatusCodes } from 'http-status-codes';
 
 const validate = (schema) => (req, res, next) => {
   try {
-    const result = schema.safeParse(req.body);
-
-    if (!result.success) {
-      const errors = result.error.errors.map(
-        (error) => error.message
-      );
-
-      throw new Error(errors.join(','));
+    const parsedBody = schema.parse(req.params);
+    req.body = parsedBody;
+    next();
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return res
+        .status(StatusCodes.BAD_REQUEST)
+        .json({ errors: error.errors });
     }
 
-    next();
-  } catch (err) {
-    return res.status(StatusCodes.BAD_REQUEST).json({
-      message: 'Validation error',
-      errors: err.message,
-    });
+    next(error);
   }
 };
 
