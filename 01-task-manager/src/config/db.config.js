@@ -1,10 +1,20 @@
+import { MongoMemoryServer } from 'mongodb-memory-server';
 import mongoose from 'mongoose';
 
-export default function connectDB() {
-  const url = process.env.MONGO_URI;
+let mongod;
+
+export default async function connectDB() {
+  let uri;
+
+  if (process.env.NODE_ENV === 'test') {
+    mongod = await MongoMemoryServer.create();
+    uri = mongod.getUri();
+  } else {
+    uri = process.env.MONGODB_URI_TEST || process.env.MONGODB_URI;
+  }
 
   try {
-    mongoose.connect(url);
+    mongoose.connect(uri);
   } catch (err) {
     console.log(err.message);
     process.exit(1);
@@ -13,7 +23,7 @@ export default function connectDB() {
   const dbConnection = mongoose.connection;
 
   dbConnection.once('open', () => {
-    console.log(`Database connected: ${url}`);
+    console.log(`Database connected using ${process.env.NODE_ENV} environment`);
   });
 
   dbConnection.on('error', (err) => {
